@@ -11,7 +11,7 @@ You're sections headers will be used to reference location of destination.
 
 ## Description
 
-This is a books library made it with express and sequelize.
+This is a REST API created using express.
 
 #### Technologies
 
