@@ -1,4 +1,4 @@
-# SQL Library Manager
+# REST Api 
 
 ### Table of Contents
 You're sections headers will be used to reference location of destination.
@@ -15,14 +15,12 @@ This is a books library made it with express and sequelize.
 
 #### Technologies
 
-- javaScript
-- Html
-- Css
+- postman
 - Node.js
 - express
 - sql
 
-[Back To The Top](#sql-library-Manager)
+[Back To The Top](#rest-api)
 
 ---
 
@@ -35,12 +33,12 @@ This is a books library made it with express and sequelize.
 
 - npm start 
 
-    Start the project in http://localhost:3000/
+    Start the project in http://localhost:5000/
 
 
 ## Author Info
 
 - Twitter - [@JCompeann](https://twitter.com/JCompeann)
 
-[Back To The Top](#sql-library-Manager)
+[Back To The Top](#rest-api)
 
