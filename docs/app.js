@@ -13,6 +13,9 @@ const enableGlobalErrorLogging = process.env.ENABLE_GLOBAL_ERROR_LOGGING === 'tr
 // create the Express app
 const app = express();
 
+// Setup request body JSON parsing.
+app.use(express.json());
+
 // setup morgan which gives us http request logging
 app.use(morgan('dev'));
 
@@ -25,7 +28,7 @@ app.get('/', (req, res) => {
 
 // Add routes.
 app.use('/api', users)
-// app.use('/api', courses)
+app.use('/api', courses)
 
 // send 404 if no other route matched
 app.use((req, res) => {
@@ -58,8 +61,11 @@ const server = app.listen(app.get('port'), () => {
 
 (async () => {
   try {
+    // Test the connection to the database.
     await sequelize.authenticate();
     console.log('Connection Works')
+
+    // catching any error.
   } catch (error) {
     console.log('Error', error)
   }

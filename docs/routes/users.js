@@ -1,7 +1,7 @@
 'use strict';
-
+// Load modules
 const express = require('express');
-const bcrypt = require('bcrypt');
+const { authenticateUser } = require('../middleware/auth-user')
 const { asyncHandler } = require('../middleware/async-handler');
 const { User } = require('../models');
 
@@ -9,13 +9,18 @@ const { User } = require('../models');
 const router = express.Router();
 
 // Route that returns a list of users.
-router.get('/users', asyncHandler(async (req, res) => {
-  const users = await User.findAll()
+router.get('/users', authenticateUser, asyncHandler(async (req, res) => {
+  const user = req.currentUser;
 
-
-  res.json(users);
+  res.json({
+    firstName: user.firstName,
+    lastName: user.lastName,
+    emailAddress: user.emailAddress
+  });
+  
 }));
 
+// Route that create a new user.
 router.post('/users', asyncHandler(async (req, res) => {
   try {
     await User.create(req.body);

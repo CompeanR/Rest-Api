@@ -1,59 +1,104 @@
 'use strict';
-
+// Load modules
 const express = require('express');
-const bcrypt = require('bcrypt');
-
-// This array is used to keep track of user records
-// as they are created.
-const courses = [];
+const { asyncHandler } = require('../middleware/async-handler');
+const { authenticateUser } = require('../middleware/auth-user')
+const { Course } = require('../models');
 
 // Construct a router instance.
 const router = express.Router();
 
-// Route that returns a list of users.
-router.get('/courses', (req, res) => {
+// Route that returns a list of Courses.
+router.get('/courses', asyncHandler(async (req, res) => {
+  const courses = await Course.findAll();
+
   res.json(courses);
-});
+}));
 
-// Route that creates a new user.
-router.post('/courses', (req, res) => {
-  // Get the user from the request body.
-  const user = req.body;
+// Route that will return the corresponding course.
+router.get('/courses/:id', asyncHandler(async (req, res) => {
   
-  // Store errors
-  const errors = [];
-
-  // Validate that we have a `name` value.
-  if (!user.name) {
-    errors.push('Please provide a value for "name"');
-  }
-
-  // Validate that we have an `email` value.
-  if (!user.email) {
-    errors.push('Please provide a value for "email"');
-  } 
-
-  // Validate that we have a `password` value.
-  let password = user.password;
-  if (!password) {
-    errors.push('Please provide a value for "password"');
-  } else if (password.length < 8 || password.length > 20) {
-    errors.push('Your password should be between 8 and 20 characters');
+  const course = await Course.findByPk(req.params.id);
+  
+  if (course) {
+    res.json(course);
   } else {
-    user.password = bcrypt.hashSync(password, 10);
-  }
+    const err = new Error();
+    err.status = 404;
+    next(err);
+  };
 
-  // If there are any errors...
-  if (errors.length > 0) {
-    // Return the validation errors to the client.
-    res.status(400).json({ errors });
-  } else {
-    // Add the user to the `users` array.
-    users.push(user);
+}));
 
-    // Set the status to 201 Created and end the response.
-    res.status(201).end();
-  }
-});
+// Route that create a new Course.
+router.post('/courses', authenticateUser, asyncHandler(async (req, res) => {
+  try {
+    await Course.create(req.body);
+    res.status(201).json({ "message": "Course successfully created!" })
+  } catch (error) {
+    if (error.name === 'SequelizeValidationError' || error.name === 'SequelizeUniqueConstraintError') {
+      const errors = error.errors.map(err => err.message);
+      res.status(400).json({ errors });
+    } else {
+      throw error;
+    };
+  };
+
+}));
+
+// Route that update a new Course.
+router.put('/courses/:id', authenticateUser, asyncHandler(async (req, res) => {
+  let course;
+  try {
+    course = await Course.findByPk(req.params.id);
+
+    if (!req.body.title) {
+      res.status(400).json({ error: 'A title is required' });
+    } 
+    
+    else if (!req.body.description) {
+      res.status(400).json({ error: 'A description is required' })
+    }
+    
+    else {
+      await course.update(req.body);
+      res.status(204).json()
+    };
+
+  } catch (error) {
+    if (error.name === 'SequelizeValidationError' || error.name === 'SequelizeUniqueConstraintError') {
+      const errors = error.errors.map(err => err.message);
+      res.status(400).json({ errors }) ;
+    } else {
+      throw error;
+    };
+  };
+
+})); 
+
+// Delete the corresponding course.
+router.delete('/courses/:id', authenticateUser, asyncHandler(async (req, res) => {
+  
+  try {
+    const course = await Course.findByPk(req.params.id);
+    if (course) {
+      await course.destroy();
+      res.status(204).json();
+    } else {
+      const err = new Error();
+      err.message = 'This course is not available';
+      err.status = 404;
+      next(err);
+    }
+  } catch (error) {
+    if (error.name === 'SequelizeValidationError' || error.name === 'SequelizeUniqueConstraintError') {
+      const errors = error.errors.map(err => err.message);
+      res.status(400).json({ errors }) ;
+    } else {
+      throw error;
+    };
+  };
+
+}));
 
 module.exports = router;

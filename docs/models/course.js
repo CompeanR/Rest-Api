@@ -1,37 +1,54 @@
 'use strict';
-const Sequelize = require('sequelize');
+const { Model, DataTypes } = require('sequelize');
+const bcrypt = require('bcrypt')
 
 module.exports = (sequelize) => {
-  class Course extends Sequelize.Model {}
+  class Course extends Model {}
   Course.init({
     id: {
-      type: Sequelize.INTEGER,
+      type: DataTypes.INTEGER,
       primaryKey: true,
       autoIncrement: true,
     },
     title: {
-      type: Sequelize.STRING,
+      type: DataTypes.STRING,
       allowNull: false,
+      validate: {
+        notNull: {
+          msg: 'A title is required'
+        },
+        notEmpty: {
+          msg: 'Please provide a title'
+        }
+      }
     },
     description: {
-      type: Sequelize.TEXT,
+      type: DataTypes.TEXT,
       allowNull: false,
+      validate: {
+        notNull: {
+          msg: 'A description is required'
+        },
+        notEmpty: {
+          msg: 'Please provide a description'
+        }
+      }
     },
     estimatedTime: {
-      type: Sequelize.STRING,
+      type: DataTypes.STRING,
       allowNull: false,
     },
     materialsNeeded: {
-      type: Sequelize.STRING,
+      type: DataTypes.STRING,
       allowNull: false,
     },
   }, { sequelize });
 
   Course.associate = (models) => {
     Course.belongsTo(models.User, {
-      as: 'user',
+      as: 'user', // alias.
       foreignKey: {
-        fieldName: 'user id',
+        fieldName: 'userId',
         allowNull: false,
       },
     });
