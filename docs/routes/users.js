@@ -12,10 +12,12 @@ const router = express.Router();
 router.get('/users', authenticateUser, asyncHandler(async (req, res) => {
   const user = req.currentUser;
 
+  // Filtering createAt and  updatedAt columns.
   res.json({
     firstName: user.firstName,
     lastName: user.lastName,
-    emailAddress: user.emailAddress
+    emailAddress: user.emailAddress,
+    userId: user.id
   });
   
 }));
@@ -24,7 +26,7 @@ router.get('/users', authenticateUser, asyncHandler(async (req, res) => {
 router.post('/users', asyncHandler(async (req, res) => {
   try {
     await User.create(req.body);
-    res.status(201).json({ "message": "Account successfully created!" })
+    res.location('/').status(201).json()
   } catch (error) {
     if (error.name === 'SequelizeValidationError' || error.name === 'SequelizeUniqueConstraintError') {
       const errors = error.errors.map(err => err.message);

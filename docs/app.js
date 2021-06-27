@@ -4,8 +4,8 @@
 const express = require('express');
 const morgan = require('morgan');
 const { sequelize, models } = require('./models');
-const users = require('./routes/users')
-const courses = require('./routes/courses')
+const users = require('./routes/users');
+const courses = require('./routes/courses');
 
 // variable to enable global error logging
 const enableGlobalErrorLogging = process.env.ENABLE_GLOBAL_ERROR_LOGGING === 'true';
@@ -27,8 +27,8 @@ app.get('/', (req, res) => {
 });
 
 // Add routes.
-app.use('/api', users)
-app.use('/api', courses)
+app.use('/api', users);
+app.use('/api', courses);
 
 // send 404 if no other route matched
 app.use((req, res) => {
@@ -41,7 +41,7 @@ app.use((req, res) => {
 app.use((err, req, res, next) => {
   if (enableGlobalErrorLogging) {
     console.error(`Global error handler: ${JSON.stringify(err.stack)}`);
-  }
+  };
 
   res.status(err.status || 500).json({
     message: err.message,
@@ -63,10 +63,10 @@ const server = app.listen(app.get('port'), () => {
   try {
     // Test the connection to the database.
     await sequelize.authenticate();
-    console.log('Connection Works')
+    console.log('Connection Works');
 
     // catching any error.
   } catch (error) {
-    console.log('Error', error)
-  }
+    console.log('Error', error);
+  };
 }) ();
