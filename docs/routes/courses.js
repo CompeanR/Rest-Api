@@ -3,46 +3,42 @@
 const express = require('express');
 const { asyncHandler } = require('../middleware/async-handler');
 const { authenticateUser } = require('../middleware/auth-user');
-const { Course } = require('../models');
+const { Course,  User } = require('../models');
 
 // Construct a router instance.
 const router = express.Router();
 
 // Route that returns a list of Courses.
 router.get('/courses', asyncHandler(async (req, res) => {
-  const courses = await Course.findAll();
-
-  // Filtering createAt and  updatedAt columns.
-  const instancesCourses = courses.map(course => {
-    const instances = {
-      title: course.title,
-      description: course.description,
-      estimatedTime: course.estimatedTime,
-      materialsNeeded: course.materialsNeeded,
-      userId: course.userId
-    };
-
-    return instances;
+  
+  const courses = await Course.findAll({
+    attributes: ['id', 'title', 'description', 'estimatedTime', 'materialsNeeded', 'userId'],
+    include: [{
+      model: User,
+      as: 'user',
+      attributes: ['id', 'firstName', 'lastName', 'emailAddress']
+    }]
   });
 
-  res.json(instancesCourses);
+  res.json(courses);
 }));
 
 // Route that will return the corresponding course.
 router.get('/courses/:id', asyncHandler(async (req, res) => {
   
-  const course = await Course.findByPk(req.params.id);
+  const course = await Course.findByPk(req.params.id, {
+    attributes: ['id', 'title', 'description', 'estimatedTime', 'materialsNeeded', 'userId'],
+    include: [{
+      model: User,
+      as: 'user',
+      attributes: ['id', 'firstName', 'lastName', 'emailAddress']
+    }]
+  });
   
   if (course) {
 
     // Filtering createAt and  updatedAt columns.
-    res.json({
-      id: course.id,
-      title: course.title,
-      description: course.description,
-      estimatedTime: course.estimatedTime,
-      materialsNeeded: course.materialsNeeded
-    });
+    res.json(course)
 
   } else {
     const err = new Error();
