@@ -10,7 +10,7 @@ const router = express.Router();
 
 // Route that returns a list of Courses.
 router.get('/courses', asyncHandler(async (req, res) => {
-  
+
   const courses = await Course.findAll({
     attributes: ['id', 'title', 'description', 'estimatedTime', 'materialsNeeded', 'userId'],
     include: [{
@@ -51,8 +51,8 @@ router.get('/courses/:id', asyncHandler(async (req, res) => {
 // Route that create a new Course.
 router.post('/courses', authenticateUser, asyncHandler(async (req, res) => {
   try {
-    await Course.create(req.body);
-    res.location('/courses/:id').status(201).json();
+    const course = await Course.create(req.body);
+    res.location(`/courses/${course.id}`).status(201).json();
   } catch (error) {
     if (error.name === 'SequelizeValidationError' || error.name === 'SequelizeUniqueConstraintError') {
       const errors = error.errors.map(err => err.message);
